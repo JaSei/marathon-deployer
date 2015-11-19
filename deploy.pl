@@ -16,6 +16,10 @@ my $marathon_json_file = $ENV{MARATHON_JSON} || 'marathon.json';
 my $marathon_json = decode_json(path($marathon_json_file)->slurp);
 my $app_url = "$marathon_apps_url/$marathon_json->{id}";
 
+if ($ENV{DOCKER_IMAGE_NAME}) {
+    $marathon_json->{container}{docker}{image} = $ENV{DOCKER_IMAGE_NAME};
+}
+
 my $ua = Mojo::UserAgent->new;
 
 my $app_exists = $ua->get($app_url)->res->json->{message} !~ /not exist$/;
