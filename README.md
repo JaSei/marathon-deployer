@@ -13,4 +13,4 @@ What it does for you:
 - construct the URL to deploy
 - do POST if app wasn't deployed yet
 - do PUT if it was
-- TODO: parse response and set the return code accordingly
+- parse response and set the return code accordingly
