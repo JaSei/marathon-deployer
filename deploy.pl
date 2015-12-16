@@ -15,6 +15,8 @@ my $marathon_url = $ENV{MARATHON_URL}
 my $marathon_apps_url = "$marathon_url/apps";
 
 my $marathon_json_file = $ENV{MARATHON_JSON} || 'marathon.json';
+die "The file $marathon_json_file does not exist." unless -e $marathon_json_file;
+
 my $marathon_json = decode_json(path($marathon_json_file)->slurp);
 my $app_url = URI->new("$marathon_apps_url/".uri_escape($marathon_json->{id}))->canonical->as_string();
 
