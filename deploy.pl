@@ -36,6 +36,6 @@ else {
     $res = $ua->post($marathon_apps_url => json => $marathon_json)->res()
 }
 
-if ($res->code != 200) {
+if ($res->code != 200 && $res->code != 201) {
     die $res->to_string();
 }
