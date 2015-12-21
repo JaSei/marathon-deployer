@@ -8,8 +8,11 @@ A simple script for deploying docker images to marathon-based cloud.
 
 It will simply do the POST or PUT request to deploy your app.
 
-What it does for you:
+Optionally you can also provide these environment variables:
+- MARATHON_JSON - name of your JSON file (default is marathon.json)
+- DOCKER_IMAGE_NAME - name of the docker image, this will be replaced in marathon json before submitting it
 
+What it does for you:
 - construct the URL to deploy
 - do POST if app wasn't deployed yet
 - do PUT if it was
