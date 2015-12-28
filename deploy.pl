@@ -25,7 +25,7 @@ if ($ENV{DOCKER_IMAGE_NAME}) {
 }
 
 if ($ENV{MARATHON_INSTANCES}) {
-    $marathon_json->{container}{instances} = $ENV{MARATHON_INSTANCES};
+    $marathon_json->{instances} = $ENV{MARATHON_INSTANCES};
 }
 
 my $ua = Mojo::UserAgent->new;
