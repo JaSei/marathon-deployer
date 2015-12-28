@@ -24,6 +24,10 @@ if ($ENV{DOCKER_IMAGE_NAME}) {
     $marathon_json->{container}{docker}{image} = $ENV{DOCKER_IMAGE_NAME};
 }
 
+if ($ENV{MARATHON_INSTANCES}) {
+    $marathon_json->{container}{instances} = $ENV{MARATHON_INSTANCES};
+}
+
 my $ua = Mojo::UserAgent->new;
 
 my $app_exists = $ua->get($app_url)->res->json->{message} !~ /not exist$/;
