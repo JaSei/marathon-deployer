@@ -8,6 +8,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use Path::Tiny;
 use URI;
 use URI::Escape qw(uri_escape);
+use Scalar::Util qw(looks_like_number);
 
 my $marathon_url = $ENV{MARATHON_URL}
     or die 'Environment variable MARATHON_URL not set. Exiting...';
@@ -24,8 +25,8 @@ if ($ENV{DOCKER_IMAGE_NAME}) {
     $marathon_json->{container}{docker}{image} = $ENV{DOCKER_IMAGE_NAME};
 }
 
-if ($ENV{MARATHON_INSTANCES}) {
-    $marathon_json->{instances} = $ENV{MARATHON_INSTANCES};
+if ($ENV{MARATHON_INSTANCES} && looks_like_number($ENV{MARATHON_INSTANCES})) {
+    $marathon_json->{instances} = int($ENV{MARATHON_INSTANCES});
 }
 
 my $ua = Mojo::UserAgent->new;
