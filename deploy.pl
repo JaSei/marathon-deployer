@@ -24,7 +24,7 @@ if ($ENV{DOCKER_IMAGE_NAME}) {
     $marathon_json->{container}{docker}{image} = $ENV{DOCKER_IMAGE_NAME};
 }
 
-if ($ENV{MARATHON_INSTANCES}) {
+if (defined $ENV{MARATHON_INSTANCES}) {
     die 'Environment variable MARATHON_INSTANCES must be non-negative integer or undefined, '
         . "'$ENV{MARATHON_INSTANCES}' given. Exiting..."
         if ! is_nonnegative_integer($ENV{MARATHON_INSTANCES});
