@@ -25,7 +25,10 @@ if ($ENV{DOCKER_IMAGE_NAME}) {
 }
 
 if ($ENV{MARATHON_INSTANCES}) {
-    $marathon_json->{instances} = $ENV{MARATHON_INSTANCES};
+    die 'Environment variable MARATHON_INSTANCES must be non-negative integer or undefined, '
+        . "'$ENV{MARATHON_INSTANCES}' given. Exiting..."
+        if ! is_nonnegative_integer($ENV{MARATHON_INSTANCES});
+    $marathon_json->{instances} = int($ENV{MARATHON_INSTANCES});
 }
 
 my $ua = Mojo::UserAgent->new;
@@ -42,4 +45,10 @@ else {
 
 if ($res->code != 200 && $res->code != 201) {
     die $res->to_string();
+}
+
+
+sub is_nonnegative_integer {
+    local $_ = shift;
+    return /\A\+?\d+\z/
 }
