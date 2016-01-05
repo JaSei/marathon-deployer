@@ -8,7 +8,6 @@ use Mojo::JSON qw(decode_json encode_json);
 use Path::Tiny;
 use URI;
 use URI::Escape qw(uri_escape);
-use Scalar::Util qw(looks_like_number);
 
 my $marathon_url = $ENV{MARATHON_URL}
     or die 'Environment variable MARATHON_URL not set. Exiting...';
@@ -25,7 +24,10 @@ if ($ENV{DOCKER_IMAGE_NAME}) {
     $marathon_json->{container}{docker}{image} = $ENV{DOCKER_IMAGE_NAME};
 }
 
-if ($ENV{MARATHON_INSTANCES} && looks_like_number($ENV{MARATHON_INSTANCES})) {
+if ($ENV{MARATHON_INSTANCES}) {
+    die 'Environment variable MARATHON_INSTANCES must be non-negative integer or undefined, '
+        . "'$ENV{MARATHON_INSTANCES}' given. Exiting..."
+        if ! is_nonnegative_integer($ENV{MARATHON_INSTANCES});
     $marathon_json->{instances} = int($ENV{MARATHON_INSTANCES});
 }
 
@@ -43,4 +45,10 @@ else {
 
 if ($res->code != 200 && $res->code != 201) {
     die $res->to_string();
+}
+
+
+sub is_nonnegative_integer {
+    local $_ = shift;
+    return /\A\+?\d+\z/
 }
