@@ -15,6 +15,5 @@ Optionally you can also provide these environment variables:
 
 What it does for you:
 - construct the URL to deploy
-- do POST if app wasn't deployed yet
-- do PUT if it was
+- do PUT request to marathon with provided JSON file
 - parse response and set the return code accordingly
