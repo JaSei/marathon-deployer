@@ -8,4 +8,4 @@ before_install:
   - docker build --tag=deployer .
 
 script:
-  - docker run build-image -c
+  - docker run deployer -c
