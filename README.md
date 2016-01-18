@@ -1,5 +1,7 @@
 # Marathon Deployer
 
+[![Build Status](https://travis-ci.org/avast/marathon-deployer.svg?branch=master)](https://travis-ci.org/avast/marathon-deployer)
+
 A simple script for deploying docker images to marathon-based cloud.
 
     docker run \
