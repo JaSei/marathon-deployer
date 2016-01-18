@@ -33,7 +33,7 @@ if (defined $ENV{MARATHON_INSTANCES}) {
 
 my $ua = Mojo::UserAgent->new;
 
-$res = $ua->put($app_url => json => $marathon_json)->res();
+my $res = $ua->put($app_url => json => $marathon_json)->res();
 
 if ($res->code != 200 && $res->code != 201) {
     die $res->to_string();
