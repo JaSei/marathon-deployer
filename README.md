@@ -12,6 +12,7 @@ It will simply do the POST or PUT request to deploy your app.
 
 Optionally you can also provide these environment variables:
 - MARATHON_JSON - name of your JSON file (default is marathon.json)
+- MARATHON_APPLICATION_NAME - name of the application (id), this will be replaced in marathon json before submitting it
 - MARATHON_INSTANCES - number of instances, this will be replaced in marathon json before submitting it
 - DOCKER_IMAGE_NAME - name of the docker image, this will be replaced in marathon json before submitting it
 
