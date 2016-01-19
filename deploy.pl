@@ -18,7 +18,6 @@ my $marathon_json_file = $ENV{MARATHON_JSON} || 'marathon.json';
 die "The file $marathon_json_file does not exist." unless -e $marathon_json_file;
 
 my $marathon_json = decode_json(path($marathon_json_file)->slurp);
-my $app_url = URI->new("$marathon_apps_url/".uri_escape($marathon_json->{id}))->canonical->as_string();
 
 if ($ENV{MARATHON_APPLICATION_NAME}) {
     $marathon_json->{id} = $ENV{MARATHON_APPLICATION_NAME};
@@ -37,6 +36,7 @@ if (defined $ENV{MARATHON_INSTANCES}) {
 
 my $ua = Mojo::UserAgent->new;
 
+my $app_url = URI->new("$marathon_apps_url/".uri_escape($marathon_json->{id}))->canonical->as_string();
 my $res = $ua->put($app_url => json => $marathon_json)->res();
 
 if ($res->code != 200 && $res->code != 201) {
