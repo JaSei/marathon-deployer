@@ -20,6 +20,10 @@ die "The file $marathon_json_file does not exist." unless -e $marathon_json_file
 my $marathon_json = decode_json(path($marathon_json_file)->slurp);
 my $app_url = URI->new("$marathon_apps_url/".uri_escape($marathon_json->{id}))->canonical->as_string();
 
+if ($ENV{MARATHON_APPLICATION_NAME}) {
+    $marathon_json->{id} = $ENV{MARATHON_APPLICATION_NAME};
+}
+
 if ($ENV{DOCKER_IMAGE_NAME}) {
     $marathon_json->{container}{docker}{image} = $ENV{DOCKER_IMAGE_NAME};
 }
