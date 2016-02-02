@@ -12,7 +12,7 @@ use URI::Escape qw(uri_escape);
 my $marathon_url = $ENV{MARATHON_URL}
     or die 'Environment variable MARATHON_URL not set. Exiting...';
 
-my $marathon_apps_url = "$marathon_url/apps";
+my $marathon_apps_url = "$marathon_url/v2/apps";
 
 my $marathon_json_file = $ENV{MARATHON_JSON} || 'marathon.json';
 die "The file $marathon_json_file does not exist." unless -e $marathon_json_file;
