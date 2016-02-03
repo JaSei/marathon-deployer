@@ -37,7 +37,15 @@ if (defined $ENV{MARATHON_INSTANCES}) {
 my $ua = Mojo::UserAgent->new;
 
 my $app_url = URI->new("$marathon_apps_url/".uri_escape($marathon_json->{id}))->canonical->as_string();
-my $res = $ua->put($app_url => json => $marathon_json)->res();
+my $app_exists = $ua->get($app_url)->res->json->{message} !~ /not exist$/;
+
+my $res;
+if ($app_exists) {
+    $res = $ua->put($app_url => json => $marathon_json)->res();
+}
+else {
+    $res = $ua->post($marathon_apps_url => json => $marathon_json)->res()
+}
 
 if ($res->code != 200 && $res->code != 201) {
     die $res->to_string();
