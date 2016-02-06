@@ -2,9 +2,7 @@ FROM avastsoftware/cpanm:latest
 
 MAINTAINER Avast Viruslab Systems
 
-RUN cpanm Mojolicious Path::Tiny
+COPY . /install
+RUN cpanm /install
 
-COPY deploy.pl /deployer/deploy.pl
-
-ENTRYPOINT ["perl"]
-CMD ["/deployer/deploy.pl"]
+ENTRYPOINT ["deploy"]

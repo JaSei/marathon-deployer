@@ -5,7 +5,7 @@ services:
   - docker
 
 before_install:
-  - docker build --tag=deployer .
+  - docker-compose build
 
 script:
-  - docker run deployer -c /deployer/deploy.pl
+  - docker-compose run deployer_test
