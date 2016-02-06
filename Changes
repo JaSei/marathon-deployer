@@ -1,6 +1,4 @@
 Revision history for Perl extension App-MarathonDeployer
 
-{{$NEXT}}
-
-    - original version
-
+0.1.0
+    - first, module version
