@@ -67,7 +67,7 @@ if ($number_of_deployments > 0)
 }
 else 
 {
-	print "Deployment was successfull.";
+	print "Deployment was successful.";
 }
 
 sub is_nonnegative_integer {
