@@ -16,6 +16,7 @@ my $marathon_api_url = URI->new("$marathon_url/v2")->canonical->as_string();
 my $marathon_apps_url = "$marathon_api_url/apps";
 
 my $marathon_json_file = $ENV{MARATHON_JSON} || 'marathon.json';
+my $deployment_verification_timeout = $ENV{MARATHON_DEPLOY_TIMEOUT_SECONDS} || 120;
 die "The file $marathon_json_file does not exist." unless -e $marathon_json_file;
 
 my $marathon_json = decode_json(path($marathon_json_file)->slurp);
@@ -50,10 +51,23 @@ if ($res->code != 200 && $res->code != 201) {
 my $deployment_url = "$marathon_api_url/deployments";
 
 my $number_of_deployments = number_of_deployments($ua, $deployment_url, $application_id);
-while ($number_of_deployments > 0) {
-	print "Waiting for $number_of_deployments deployment(s) to finish...";
-	sleep(5);
+my $deployment_check_wait_time = 5;
+while ($number_of_deployments > 0 && $deployment_verification_timeout > 0) 
+{
+	print "Waiting for $number_of_deployments deployment(s) to finish..." . "\n";	
+	sleep($deployment_check_wait_time);
+	
+	$deployment_verification_timeout -= $deployment_check_wait_time;
 	$number_of_deployments = number_of_deployments($ua, $deployment_url, $application_id);
+}
+
+if ($number_of_deployments > 0) 
+{
+	die "Deployment did not finish successfully. There are still $number_of_deployments ongoing deployment(s). You have to solve this manually in Marathon.";
+}
+else 
+{
+	print "Deployment was successfull.";
 }
 
 sub is_nonnegative_integer {
