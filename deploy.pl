@@ -12,7 +12,7 @@ use URI::Escape qw(uri_escape);
 my $marathon_url = $ENV{MARATHON_URL}
     or die 'Environment variable MARATHON_URL not set. Exiting...';
 
-my $marathon_api_url = "$marathon_url/v2";
+my $marathon_api_url = URI->new("$marathon_url/v2")->canonical->as_string();
 my $marathon_apps_url = "$marathon_api_url/apps";
 
 my $marathon_json_file = $ENV{MARATHON_JSON} || 'marathon.json';
@@ -47,7 +47,7 @@ if ($res->code != 200 && $res->code != 201) {
     die $res->to_string();
 }
 
-my $deployment_url = URI->new("$marathon_api_url/deployments")->canonical->as_string();
+my $deployment_url = "$marathon_api_url/deployments";
 
 my $number_of_deployments = number_of_deployments($ua, $deployment_url, $application_id);
 while ($number_of_deployments > 0) {
