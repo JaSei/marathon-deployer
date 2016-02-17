@@ -12,7 +12,7 @@ use URI::Escape qw(uri_escape);
 my $marathon_url = $ENV{MARATHON_URL}
     or die 'Environment variable MARATHON_URL not set. Exiting...';
 
-my $marathon_api_url = URI->new("$marathon_url/v2")->canonical->as_string();
+my $marathon_api_url = URI->new("$marathon_url")->canonical->as_string();
 my $marathon_apps_url = "$marathon_api_url/apps";
 
 my $marathon_json_file = $ENV{MARATHON_JSON} || 'marathon.json';
