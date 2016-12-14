@@ -1,17 +1,19 @@
 zookeeper:
     image: jplock/zookeeper
 marathon:
-    image: mesosphere/marathon 
+    image: mesosphere/marathon
     command: --master local --zk zk://zookeeper:2181/marathon
     links:
         - zookeeper
+    environment:
+      - MESOS_WORK_DIR=/var/lib/mesos
 deployer:
     build: .
 deployer_test:
     build: test
-    entrypoint: dockerize 
+    entrypoint: dockerize
     command: -timeout 120s -wait http://marathon:8080 deploy
-    links: 
+    links:
         - marathon
     volumes:
         - ./test/test_marathon.json:/marathon.json

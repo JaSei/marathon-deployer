@@ -79,7 +79,7 @@ sub run {
         die $res->to_string();
     }
 
-    $self->verify_deployment_finished();
+    # $self->verify_deployment_finished();
 }
 
 sub verify_deployment_finished {

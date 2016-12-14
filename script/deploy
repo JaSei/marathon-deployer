@@ -11,5 +11,5 @@ App::MarathonDeployer->new(
     marathon_application_name => $ENV{MARATHON_APPLICATION_NAME},
     marathon_instances => $ENV{MARATHON_INSTANCES},
     docker_image_name => $ENV{DOCKER_IMAGE_NAME},
-    deployment_verification_timeout => $ENV{MARATHON_DEPLOY_TIMEOUT_SECONDS} || 120;
+    deployment_verification_timeout => $ENV{MARATHON_DEPLOY_TIMEOUT_SECONDS} || 120,
 )->run();
