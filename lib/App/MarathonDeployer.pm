@@ -18,6 +18,7 @@ qw(
     marathon_application_name
     marathon_instances
     marathon_json_file
+    deployment_verification_timeout
 ),
 {
     marathon_json => sub {
@@ -78,18 +79,24 @@ sub run {
         die $res->to_string();
     }
 
+    $self->verify_deployment_finished();
+}
+
+sub verify_deployment_finished {
+    my ($self) = @_;
+
     my $deployment_url = "$self->marathon_url/v2/deployments";
     my $application_id = $self->marathon_json->{id};
-    my $deployment_verification_timeout = $ENV{MARATHON_DEPLOY_TIMEOUT_SECONDS} || 120;
+    my $timeout = $self->deployment_verification_timeout;
 
-    my $number_of_deployments = number_of_deployments($self->ua, $deployment_url, $application_id);
+    my $number_of_deployments = $self->number_of_deployments($deployment_url, $application_id);
     my $deployment_check_wait_time = 5;
-    while ($number_of_deployments > 0 && $deployment_verification_timeout > 0) {
+    while ($number_of_deployments > 0 && $timeout > 0) {
         print "Waiting for $number_of_deployments deployment(s) to finish..." . "\n";
         sleep($deployment_check_wait_time);
 
-        $deployment_verification_timeout -= $deployment_check_wait_time;
-        $number_of_deployments = number_of_deployments($self->ua, $deployment_url, $application_id);
+        $timeout -= $deployment_check_wait_time;
+        $number_of_deployments = $self->number_of_deployments($deployment_url, $application_id);
     }
 
     if ($number_of_deployments > 0) {
@@ -108,8 +115,8 @@ sub is_nonnegative_integer {
 }
 
 sub number_of_deployments {
-    my ($ua, $deployment_url, $application_id) = @_;
-    my $res           = $ua->get($deployment_url)->res();
+    my ($self, $deployment_url, $application_id) = @_;
+    my $res           = $self->ua->get($deployment_url)->res();
     my $parsed_result = decode_json($res->body);
 
     my $active_deployments = 0;
