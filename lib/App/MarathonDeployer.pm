@@ -6,12 +6,13 @@ use warnings;
 our $VERSION = "0.1.0";
 
 use feature 'say';
+use Data::Dumper;
 use Mojo::UserAgent;
 use Mojo::JSON qw(decode_json encode_json);
 use Path::Tiny;
 use URI;
 use URI::Escape qw(uri_escape);
-use Class::Tiny 
+use Class::Tiny
 qw(
     marathon_url
     docker_image_name
@@ -73,26 +74,27 @@ sub BUILD {
 sub run {
     my ($self) = @_;
 
+    # print STDERR "App URL: " . $self->app_url . "\n";
     my $res = $self->ua->put($self->app_url => json => $self->marathon_json)->res();
 
     if ($res->code != 200 && $res->code != 201) {
         die $res->to_string();
     }
 
-    # $self->verify_deployment_finished();
+    $self->verify_deployment_finished();
 }
 
 sub verify_deployment_finished {
     my ($self) = @_;
 
-    my $deployment_url = "$self->marathon_url/v2/deployments";
+    my $deployment_url = $self->marathon_url. '/v2/deployments';
     my $application_id = $self->marathon_json->{id};
     my $timeout = $self->deployment_verification_timeout;
 
     my $number_of_deployments = $self->number_of_deployments($deployment_url, $application_id);
     my $deployment_check_wait_time = 5;
     while ($number_of_deployments > 0 && $timeout > 0) {
-        print "Waiting for $number_of_deployments deployment(s) to finish..." . "\n";
+        print STDERR "Waiting for $number_of_deployments deployment(s) to finish..." . "\n";
         sleep($deployment_check_wait_time);
 
         $timeout -= $deployment_check_wait_time;
@@ -105,7 +107,7 @@ sub verify_deployment_finished {
             "You have to solve this manually in Marathon.";
     }
     else {
-        print "Deployment was successful.";
+        print STDERR "Deployment was successful.";
     }
 }
 
@@ -116,8 +118,10 @@ sub is_nonnegative_integer {
 
 sub number_of_deployments {
     my ($self, $deployment_url, $application_id) = @_;
+    print STDERR "deployment_url: $deployment_url\n";
     my $res           = $self->ua->get($deployment_url)->res();
     my $parsed_result = decode_json($res->body);
+    print STDERR Dumper $parsed_result;
 
     my $active_deployments = 0;
     foreach my $deployment (@$parsed_result) {

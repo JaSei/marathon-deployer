@@ -1,12 +1,7 @@
 {
-    "id": "simple-docker", 
-    "container": {
-      "docker": {
-        "image": "busybox"
-      }
-    },
-    "cmd": "echo hello from docker",
+    "id": "simple",
+    "cmd": "sleep 30",
     "cpus": 0.2,
     "mem": 32.0,
-    "instances": 2
+    "instances": 1
 }
