@@ -1,0 +1,15 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use App::MarathonDeployer;
+
+App::MarathonDeployer->new(
+    marathon_url => $ENV{MARATHON_URL},
+    marathon_json_file => $ENV{MARATHON_JSON} || '/marathon.json',
+    marathon_application_name => $ENV{MARATHON_APPLICATION_NAME},
+    marathon_instances => $ENV{MARATHON_INSTANCES},
+    docker_image_name => $ENV{DOCKER_IMAGE_NAME},
+    deployment_verification_timeout => $ENV{MARATHON_DEPLOY_TIMEOUT_SECONDS} || 120,
+)->run();

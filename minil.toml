@@ -1,0 +1,3 @@
+name = "App-MarathonDeployer"
+badges = ["travis"]
+module_maker="ModuleBuildTiny"
