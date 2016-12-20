@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 use Test::Exception;
 use Mock::Quick;
 use FindBin qw($Bin);
@@ -17,9 +17,12 @@ throws_ok {
 qr/marathon_url/i, 'marathon_url check';
 
 throws_ok {
-    App::MarathonDeployer->new(marathon_url => 'test');
+    App::MarathonDeployer->new(
+        marathon_url       => 'test',
+        marathon_json_file => 'nonexistent_marathon.json',
+    );
 }
-qr/The file ''/, 'marathon_json_file check';
+qr/The file 'nonexistent_marathon.json'/, 'marathon_json_file check';
 
 subtest 'invalid json' => sub {
     my $json_file = Path::Tiny->tempfile();
@@ -30,6 +33,7 @@ subtest 'invalid json' => sub {
         my $deployer = App::MarathonDeployer->new(
             marathon_url       => 'test',
             marathon_json_file => $json_file->stringify(),
+            cpu_profile        => 'standard',
         )->run();
     }
     qr/Malformed JSON/, 'invalid json';
@@ -73,6 +77,7 @@ subtest 'run' => sub {
         marathon_json      => {
             id        => 'some_app',
             instances => 1,
+            cpus      => 1,
             container => {
                 docker => {
                     image => 'some_imagae',
@@ -83,7 +88,52 @@ subtest 'run' => sub {
         marathon_application_name => 'app_id',
         marathon_instances        => 2,
         docker_image_name         => 'other_image',
+        cpu_profile               => 'standard',
     );
 
     $deployer->run();
+};
+
+subtest 'compute_cpus' => sub {
+    my $class_res = qclass(
+        -with_new       => 1,
+        is_status_class => 1,
+        json            => {
+            slaves => [
+                { resources => {cpus => 1, mem => 40} },
+                { resources => {cpus => 4, mem => 40} },
+                { resources => {cpus => 5, mem => 20} },
+            ]
+        }
+    );
+
+    my $class_req = qclass(
+        -with_new => 1,
+        res       => sub { $class_res->package->new() },
+    );
+
+    my $class_ua = qclass(
+        -with_new => 1,
+        get       => sub { $class_req->package->new() },
+    );
+
+    my $deployer = App::MarathonDeployer->new(
+        marathon_url       => 'marathon',
+        mesos_url          => 'mesos',
+        marathon_json_file => $0,
+        marathon_json      => {
+            instances => 1,
+            mem       => 20,
+            container => {
+                docker => {
+                }
+            }
+        },
+        ua                        => $class_ua->package->new(),
+        marathon_application_name => 'app_id',
+        docker_image_name         => 'some_image',
+        cpu_profile               => 'standard',
+    );
+
+    is($deployer->compute_cpus(), 2, 'cpus computed correctly');
 };

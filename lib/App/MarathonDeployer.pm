@@ -2,6 +2,7 @@ package App::MarathonDeployer;
 use 5.010;
 use strict;
 use warnings;
+use List::Util qw(sum);
 
 our $VERSION = "0.1.0";
 
@@ -15,6 +16,8 @@ use URI::Escape qw(uri_escape);
 use Class::Tiny
 qw(
     marathon_url
+    mesos_url
+    cpu_profile
     docker_image_name
     marathon_application_name
     marathon_instances
@@ -54,6 +57,10 @@ sub BUILD {
         die "The file '".$self->marathon_json_file."' does not exist.";
     }
 
+    if (!-f $self->marathon_json_file) {
+        die "The file '".$self->marathon_json_file."' does not exist.";
+    }
+
     if ($self->marathon_application_name) {
         $self->marathon_json->{id} = $self->marathon_application_name;
     }
@@ -69,6 +76,35 @@ sub BUILD {
 
         $self->marathon_json->{instances} = int($self->marathon_instances);
     }
+
+    die 'CPU_PROFILE ' . $self->cpu_profile . ' is not one of low|standard|high'
+        if !grep {$self->cpu_profile eq $_} qw(low standard high);
+    $self->marathon_json->{cpus} //= $self->compute_cpus();
+}
+
+sub compute_cpus {
+    my ($self) = @_;
+
+    my $profile_coef =
+        {low => 0.8, standard => 1, high => 1.2}->{$self->cpu_profile};
+
+    my $resources_ratio = $self->compute_mesos_resources_ratio();
+
+    return $profile_coef * $resources_ratio * $self->marathon_json->{mem}
+}
+
+sub compute_mesos_resources_ratio {
+    my ($self) = @_;
+
+    my $url = $self->mesos_url . '/state.json';
+    my $res = $self->ua->get($url)->res;
+    die "Request to mesos $url failed: " . $res->to_string
+        if !$res->is_status_class(200);
+
+    my $cpus = sum( map {$_->{resources}{cpus} } @{ $res->json->{slaves} } );
+    my $mem =  sum( map {$_->{resources}{mem}  } @{ $res->json->{slaves} } );
+
+    return $cpus / $mem;
 }
 
 sub run {
@@ -107,7 +143,7 @@ sub verify_deployment_finished {
             "You have to solve this manually in Marathon.";
     }
     else {
-        print STDERR "Deployment was successful.";
+        print STDERR "Deployment was successful.\n";
     }
 }
 
@@ -118,10 +154,9 @@ sub is_nonnegative_integer {
 
 sub number_of_deployments {
     my ($self, $deployment_url, $application_id) = @_;
-    print STDERR "deployment_url: $deployment_url\n";
+
     my $res           = $self->ua->get($deployment_url)->res();
     my $parsed_result = decode_json($res->body);
-    print STDERR Dumper $parsed_result;
 
     my $active_deployments = 0;
     foreach my $deployment (@$parsed_result) {

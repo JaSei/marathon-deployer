@@ -76,8 +76,8 @@
       "varkockova <varkockova@avast.com>",
       "Michal Augustýn <augustyn.michal@gmail.com>",
       "alenkacz <varkockova.a@gmail.com>",
-      "tynovsky <tynovsky@seznam.cz>",
-      "Jan Seidl <seidl@avast.com>"
+      "Jan Seidl <seidl@avast.com>",
+      "tynovsky <tynovsky@seznam.cz>"
    ],
    "x_serialization_backend" : "JSON::PP version 2.27300"
 }
