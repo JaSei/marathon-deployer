@@ -7,8 +7,7 @@ use App::MarathonDeployer;
 
 App::MarathonDeployer->new(
     marathon_url => $ENV{MARATHON_URL},
-    mesos_url => $ENV{MESOS_URL} // $ENV{MARATHON_URL} =~ s/marathon/mesos/r,
-    cpu_profile => $ENV{CPU_PROFILE} // 'standard',
+    cpu_profile => $ENV{CPU_PROFILE} // 'normal',
     marathon_json_file => $ENV{MARATHON_JSON} || '/marathon.json',
     marathon_application_name => $ENV{MARATHON_APPLICATION_NAME},
     marathon_instances => $ENV{MARATHON_INSTANCES},

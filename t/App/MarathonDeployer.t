@@ -33,7 +33,7 @@ subtest 'invalid json' => sub {
         my $deployer = App::MarathonDeployer->new(
             marathon_url       => 'test',
             marathon_json_file => $json_file->stringify(),
-            cpu_profile        => 'standard',
+            cpu_profile        => 'normal',
         )->run();
     }
     qr/Malformed JSON/, 'invalid json';
@@ -88,7 +88,7 @@ subtest 'run' => sub {
         marathon_application_name => 'app_id',
         marathon_instances        => 2,
         docker_image_name         => 'other_image',
-        cpu_profile               => 'standard',
+        cpu_profile               => 'normal',
     );
 
     $deployer->run();
@@ -119,7 +119,6 @@ subtest 'compute_cpus' => sub {
 
     my $deployer = App::MarathonDeployer->new(
         marathon_url       => 'marathon',
-        mesos_url          => 'mesos',
         marathon_json_file => $0,
         marathon_json      => {
             instances => 1,
@@ -132,7 +131,7 @@ subtest 'compute_cpus' => sub {
         ua                        => $class_ua->package->new(),
         marathon_application_name => 'app_id',
         docker_image_name         => 'some_image',
-        cpu_profile               => 'standard',
+        cpu_profile               => 'normal',
     );
 
     is($deployer->compute_cpus(), 2, 'cpus computed correctly');

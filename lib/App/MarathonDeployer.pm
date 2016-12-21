@@ -16,7 +16,6 @@ use URI::Escape qw(uri_escape);
 use Class::Tiny
 qw(
     marathon_url
-    mesos_url
     cpu_profile
     docker_image_name
     marathon_application_name
@@ -77,8 +76,8 @@ sub BUILD {
         $self->marathon_json->{instances} = int($self->marathon_instances);
     }
 
-    die 'CPU_PROFILE ' . $self->cpu_profile . ' is not one of low|standard|high'
-        if !grep {$self->cpu_profile eq $_} qw(low standard high);
+    die 'CPU_PROFILE ' . $self->cpu_profile . ' is not one of low|normal|high'
+        if !grep {$self->cpu_profile eq $_} qw(low normal high);
     $self->marathon_json->{cpus} //= $self->compute_cpus();
 }
 
@@ -86,7 +85,7 @@ sub compute_cpus {
     my ($self) = @_;
 
     my $profile_coef =
-        {low => 0.8, standard => 1, high => 1.2}->{$self->cpu_profile};
+        {low => 0.3, normal => 1, high => 3}->{$self->cpu_profile};
 
     my $resources_ratio = $self->compute_mesos_resources_ratio();
 
@@ -96,7 +95,8 @@ sub compute_cpus {
 sub compute_mesos_resources_ratio {
     my ($self) = @_;
 
-    my $url = $self->mesos_url . '/state.json';
+    my $mesos_url = $self->get_mesos_url_from_marathon();
+    my $url = $mesos_url . 'state.json';
     my $res = $self->ua->get($url)->res;
     die "Request to mesos $url failed: " . $res->to_string
         if !$res->is_status_class(200);
@@ -105,6 +105,20 @@ sub compute_mesos_resources_ratio {
     my $mem =  sum( map {$_->{resources}{mem}  } @{ $res->json->{slaves} } );
 
     return $cpus / $mem;
+}
+
+sub get_mesos_url_from_marathon {
+    my ($self) = @_;
+
+    my $url = $self->marathon_url . '/v2/info';
+    my $res = $self->ua->get($url)->res;
+    die "Request to marathon $url failed: " . $res->to_string
+        if !$res->is_status_class(200);
+
+    my $mesos_url = $res->json->{marathon_config}{mesos_leader_ui_url};
+    print STDERR "$mesos_url\n";
+
+    return $mesos_url
 }
 
 sub run {
@@ -196,6 +210,7 @@ Optionally you can also provide these environment variables:
 - MARATHON_APPLICATION_NAME - name of the application (id), this will be replaced in marathon json before submitting it
 - MARATHON_INSTANCES - number of instances, this will be replaced in marathon json before submitting it
 - DOCKER_IMAGE_NAME - name of the docker image, this will be replaced in marathon json before submitting it
+- CPU_PROFILE - one of low|normal|high. If cpus is not set in marathon.json, it gets computed from total cloud's CPU/memory ratio. If you choose normal profile, the cpus is set to mem * ratio, low = 0.3 * normal, high = 3 * normal.
 
 What it does for you:
 - construct the URL to deploy
