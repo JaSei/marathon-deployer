@@ -97,7 +97,7 @@ subtest 'run' => sub {
 subtest 'compute_cpus' => sub {
     my $class_res = qclass(
         -with_new       => 1,
-        is_status_class => 1,
+        is_success      => 1,
         json            => {
             slaves => [
                 { resources => {cpus => 1, mem => 40} },

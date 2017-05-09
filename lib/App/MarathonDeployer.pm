@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use List::Util qw(sum);
 
-our $VERSION = "0.1.0";
+our $VERSION = "0.1.1";
 
 use feature 'say';
 use Data::Dumper;
@@ -99,7 +99,7 @@ sub compute_mesos_resources_ratio {
     my $url = $mesos_url . 'state.json';
     my $res = $self->ua->get($url)->res;
     die "Request to mesos $url failed: " . $res->to_string
-        if !$res->is_status_class(200);
+        if !$res->is_success();
 
     my $cpus = sum( map {$_->{resources}{cpus} } @{ $res->json->{slaves} } );
     my $mem =  sum( map {$_->{resources}{mem}  } @{ $res->json->{slaves} } );
@@ -113,7 +113,7 @@ sub get_mesos_url_from_marathon {
     my $url = $self->marathon_url . '/v2/info';
     my $res = $self->ua->get($url)->res;
     die "Request to marathon $url failed: " . $res->to_string
-        if !$res->is_status_class(200);
+        if !$res->is_success();
 
     my $mesos_url = $res->json->{marathon_config}{mesos_leader_ui_url};
     print STDERR "$mesos_url\n";
@@ -206,16 +206,32 @@ A simple script for deploying docker images to marathon-based cloud.
 It will simply do the POST or PUT request to deploy your app.
 
 Optionally you can also provide these environment variables:
-- MARATHON_JSON - name of your JSON file (default is marathon.json)
-- MARATHON_APPLICATION_NAME - name of the application (id), this will be replaced in marathon json before submitting it
-- MARATHON_INSTANCES - number of instances, this will be replaced in marathon json before submitting it
-- DOCKER_IMAGE_NAME - name of the docker image, this will be replaced in marathon json before submitting it
-- CPU_PROFILE - one of low|normal|high. If cpus is not set in marathon.json, it gets computed from total cloud's CPU/memory ratio. If you choose normal profile, the cpus is set to mem * ratio, low = 0.3 * normal, high = 3 * normal.
+
+=over
+
+=item MARATHON_JSON - name of your JSON file (default is marathon.json)
+
+=item MARATHON_APPLICATION_NAME - name of the application (id), this will be replaced in marathon json before submitting it
+
+=item MARATHON_INSTANCES - number of instances, this will be replaced in marathon json before submitting it
+
+=item DOCKER_IMAGE_NAME - name of the docker image, this will be replaced in marathon json before submitting it
+
+=item CPU_PROFILE - one of low|normal|high. If cpus is not set in marathon.json, it gets computed from total cloud's CPU/memory ratio. If you choose normal profile, the cpus is set to mem * ratio, low = 0.3 * normal, high = 3 * normal.
+
+=back
 
 What it does for you:
-- construct the URL to deploy
-- do PUT request to marathon with provided JSON file
-- parse response and set the return code accordingly
+
+=over
+
+=item construct the URL to deploy
+
+=item do PUT request to marathon with provided JSON file
+
+=item parse response and set the return code accordingly
+
+=back
 
 =head1 LICENSE
 

@@ -4,7 +4,7 @@
       "Miroslav Tynovsky <tynovsky@avast.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.0.4, CPAN::Meta::Converter version 2.150005",
+   "generated_by" : "Minilla/v3.0.10, CPAN::Meta::Converter version 2.150005",
    "license" : [
       "unknown"
    ],
@@ -71,13 +71,13 @@
          "web" : "https://github.com/avast/marathon-deployer"
       }
    },
-   "version" : "0.1.0",
+   "version" : "0.1.1",
    "x_contributors" : [
       "varkockova <varkockova@avast.com>",
       "Michal Augustýn <augustyn.michal@gmail.com>",
-      "alenkacz <varkockova.a@gmail.com>",
       "Jan Seidl <seidl@avast.com>",
-      "tynovsky <tynovsky@seznam.cz>"
+      "tynovsky <tynovsky@seznam.cz>",
+      "Alena Varkockova <varkockova.a@gmail.com>"
    ],
-   "x_serialization_backend" : "JSON::PP version 2.27300"
+   "x_serialization_backend" : "JSON::PP version 2.27300_01"
 }
